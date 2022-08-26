@@ -23,7 +23,7 @@ class Words
 protected:
 	std::string word;
 	std::fstream wordsfile;
-	int los[10];
+	int los[256];
 	Words* nextWord;
 public:
 	/*bool is_open();*/
@@ -76,13 +76,13 @@ void Words::OpeningFile()
 void Words::RandomNumbers()
 {
 	srand(time(NULL));
-	for (int i = 0; i < 10; i++) {     
+	for (int i = 0; i < word.size(); i++) {
 		los[i] = i;
 	}
 
-	for (int i = 0; i < 10; i++) {    // losujemy
+	for (int i = 0; i < word.size(); i++) {    // losujemy
 		int temp = los[i];
-		int randomIndex = rand() % 10;
+		int randomIndex = rand() % word.size();
 		los[i] = los[randomIndex];
 		los[randomIndex] = temp;
 	}
@@ -100,11 +100,13 @@ void Words::DrawWord()
 				strcpy_s(tab, word.c_str());
 				for (int i = 0; i < word.size(); i++)
 				{
-					std::cout << tab[los[10]];
+					RandomNumbers();
+					std::cout << tab[los[i]];
 				}
 			}
 			intline++;
 	}
+
 }
 
 int main()
