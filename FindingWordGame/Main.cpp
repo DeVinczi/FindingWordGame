@@ -32,6 +32,7 @@ class Words
 protected:
 	std::string word;
 	std::fstream wordsfile;
+	int score = 0;
 	char tab[256];
 	int los[256];		//Highest number of word length
 	const int wordsnumber = 9;//Number of words in txt file
@@ -50,6 +51,8 @@ public:
 	void showHint(int x);
 	void play();
 	void func();
+	void instructions();
+	void Score();
 };
 
 
@@ -151,18 +154,25 @@ void Words::FindAnswer()
 	int hint = 0;
 	std::string answer;
 	do {
-		std::cout << '\n';
+		std::cout << '\n'<<"Write your answer: ";
 		std::cin >> answer;
 		std::cin.sync_with_stdio();
 		toupper(answer);
 		if (word == answer)
 		{
 			std::cout << "Good JOB MATE!\n";
+			score++;
+			system("cls");
 		}
 		else if (answer == "9")
 		{
-			showHint(hint);
-			hint++;
+			if (hint != word.size()) {
+				showHint(hint);
+				hint++;
+			}
+			else {
+				std::cout << "Your answer is above";
+			}
 		}
 		else
 			std::cout << "Nope! Try Again!";
@@ -177,17 +187,25 @@ void Words::showHint(int x)
 		std::cout << hintVEC[j];
 	}
 		std::cout << std::setfill('*') << std::setw(word.size() - x);
+		if (hintVEC.size() == word.size())
+		{
+			hintVEC.clear();
+		}
 }
-
+void Words::Score() {
+	gotoxy(25, 5); std::cout <<"Score: " << score << '\n';
+}
 void Words::play()
 {
+	system("cls");
 	Words* FirstWord = new Words;
 	FirstWord->func();
 	while (1)
 	{
 		FirstWord->Inicialize();
 		FirstWord->OpeningFile();
-		FirstWord->DrawWord();
+		gotoxy(0, 5); FirstWord->DrawWord();
+		FirstWord->Score();
 		FirstWord->FindAnswer();
 		if (digit.empty())
 		{
@@ -196,8 +214,34 @@ void Words::play()
 		FirstWord->DeleteWord();
 	}
 }
+void Words::instructions()
+{
+	system("cls");
+	std::cout << "Instructions";
+	std::cout << "\n------------";
+	std::cout << "\nYou will have randomly draw a letters";
+	std::cout << "\n\nGuess the word and write it!";
+	std::cout << "\nPress 'escape' to exit";
+	std::cout << "\n\nPress any key to go back to menu";
+	_getch();
+}
 int main()
 {
+	do {
+	system("cls");
+	setcursor(0, 0);
+	gotoxy(10, 5); std::cout << " --------------------------- ";
+	gotoxy(10, 6); std::cout << " |	    Word Game	    | ";
+	gotoxy(10, 7); std::cout << " --------------------------- ";
+	gotoxy(10, 9); std::cout << "1. Start Game";
+	gotoxy(10, 10); std::cout << "2. Instructions";
+	gotoxy(10, 11); std::cout << "3. Quit ";
+	gotoxy(10, 15); std::cout << "Select option: ";
+	char op = _getche();
 	Words play;
-	play.play();
+	if (op == '1')play.play();
+	else if (op == '2') play.instructions();
+	else if (op == '3') exit(0);
+	} while (1);
+	return 0;
 }
