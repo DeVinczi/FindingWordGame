@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <iomanip>
 
 HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 COORD CursorPosition;
@@ -31,8 +32,9 @@ class Words
 protected:
 	std::string word;
 	std::fstream wordsfile;
+	char tab[256];
 	int los[256];		//Highest number of word length
-	int wordsnumber = 10;//Number of words in txt file
+	const int wordsnumber = 9;//Number of words in txt file
 	Words* nextWord;
 public:
 	/*bool is_open();*/
@@ -45,8 +47,9 @@ public:
 	void RandomNumbers();
 	void FindAnswer();
 	std::string& toupper(std::string &x);
-	void showHint();
+	void showHint(int x);
 	void play();
+	void func();
 };
 
 
@@ -101,26 +104,39 @@ void Words::RandomNumbers()
 	}
 }
 
+std::vector<int> digit;
+void Words::func()
+{
+	for (int i = 0; i <= wordsnumber; i++)
+		digit.push_back(i);
+	srand((unsigned)time(NULL));
+	for (int i = 1; i <digit.size(); i++) {    // Draw 0-last word
+		int temp = digit[i];
+		int numbers = rand() % wordsnumber;
+		digit[i] = digit[numbers];
+		digit[numbers] = temp;
+	}
+}
 
 void Words::DrawWord()
 {
 	int intline = 0;
-	char tab[256];
-	srand((unsigned)time(NULL));
-	int number = rand()%wordsnumber;
+	int number = digit[digit.size()-1];
+	if(!digit.empty()) digit.pop_back();
+
 	std::fstream wordsfile("Words.txt", std::ios::in);
-		while (getline(wordsfile, word))
-		{
-			if (number == intline){
-				strcpy_s(tab, word.c_str());
-				for (int i = 0; i < word.size(); i++)
-				{
-					RandomNumbers();
-					std::cout << tab[los[i]];
-				}
-				break;
+	while (getline(wordsfile, word))
+	{
+		if (number == intline) {
+			strcpy_s(tab, word.c_str());
+			for (int i = 0; i < word.size(); i++)
+			{
+				RandomNumbers();
+				std::cout << tab[los[i]];
 			}
-			intline++;
+			break;
+		}
+		intline++;
 	}
 
 }
@@ -132,6 +148,7 @@ std::string& Words::toupper(std::string &x)
 }
 void Words::FindAnswer()
 {
+	int hint = 0;
 	std::string answer;
 	do {
 		std::cout << '\n';
@@ -142,26 +159,40 @@ void Words::FindAnswer()
 		{
 			std::cout << "Good JOB MATE!\n";
 		}
+		else if (answer == "9")
+		{
+			showHint(hint);
+			hint++;
+		}
 		else
 			std::cout << "Nope! Try Again!";
-	} while (word!=answer);
-
+	} while (word != answer);
 }
 
-void Words::showHint()
+void Words::showHint(int x)
 {
-
+	std::vector<char> hintVEC;
+	for(int i = 0; i<word.size();i++) hintVEC.push_back(tab[i]);
+	for (int j = 0; j <= x; j++) {
+		std::cout << hintVEC[j];
+	}
+		std::cout << std::setfill('*') << std::setw(word.size() - x);
 }
 
 void Words::play()
 {
 	Words* FirstWord = new Words;
+	FirstWord->func();
 	while (1)
 	{
 		FirstWord->Inicialize();
 		FirstWord->OpeningFile();
 		FirstWord->DrawWord();
 		FirstWord->FindAnswer();
+		if (digit.empty())
+		{
+			std::cout << "It was last word!";
+		}
 		FirstWord->DeleteWord();
 	}
 }
